@@ -1,0 +1,21 @@
+# Vim swap files
+*.swp
+*.swo
+*.swn
+
+# Vim backup files
+*~
+
+# Session files
+Session.vim
+
+# User-specific settings (if any are added later)
+.vimrc.local
+.nvimrc.local
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Tags files (ctags, etc.)
+tags

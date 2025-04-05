@@ -1,0 +1,75 @@
+*esabird.txt*	For Vim version 8.0 and later	Last change: 2025 Apr 05
+
+==============================================================================
+CONTENTS						*esabird-contents*
+
+1. Introduction				|esabird-introduction|
+2. Usage					|esabird-usage|
+3. Configuration				|esabird-configuration|
+4. Commands				|esabird-commands|
+5. Mappings				|esabird-mappings|
+6. License					|esabird-license|
+
+==============================================================================
+1. Introduction					*esabird-introduction*
+
+Esabird is a simple Vim plugin to send selected text directly to your esa.io team as a new post (WIP).
+
+==============================================================================
+2. Usage					*esabird-usage*
+
+1. Configure your esa.io API token and team name in your |vimrc|.
+   See |esabird-configuration|.
+2. Select text in Visual mode (character-wise 'v' or line-wise 'V').
+3. Execute the command |:EsabirdSend| or use the default mapping
+   |<Leader>e| (see |esabird-mappings|).
+
+The selected text will be posted to your esa.io team as a new WIP post.
+The post title will be automatically generated with the current timestamp.
+
+==============================================================================
+3. Configuration				*esabird-configuration*
+
+Add the following lines to your |vimrc| file (e.g., `~/.vimrc` or `~/.config/nvim/init.vim`):
+
+>vim
+  " Required: Your esa.io personal access token
+  " Generate one from: https://<your-team>.esa.io/user/tokens
+  let g:esabird_api_token = 'YOUR_ESA_API_TOKEN'
+
+  " Required: Your esa.io team name
+  let g:esabird_team_name = 'YOUR_TEAM_NAME'
+
+  " Optional: Change the default mapping key (<Leader>e)
+  " let g:esabird_mapping_key = '<Leader>s' " Example: use <Leader>s
+
+  " Optional: Disable default key mapping if you want to set it manually
+  " let g:esabird_no_default_key_mappings = 1
+<
+
+Replace `'YOUR_ESA_API_TOKEN'` with your actual token and `'YOUR_TEAM_NAME'` with your team name.
+
+==============================================================================
+4. Commands					*esabird-commands*
+
+*:EsabirdSend*
+		Sends the currently selected text (in Visual mode) to esa.io.
+		This command is intended to be used after selecting text.
+
+==============================================================================
+5. Mappings					*esabird-mappings*
+
+By default, the plugin maps `<Leader>e` in Visual mode to send the selected text.
+Select text and press `<Leader>e`.
+
+You can change the mapping key by setting `g:esabird_mapping_key` in your |vimrc|. See |esabird-configuration|.
+
+You can disable the default mapping by setting `g:esabird_no_default_key_mappings` to 1 in your |vimrc|.
+
+==============================================================================
+6. License					*esabird-license*
+
+MIT License. See the repository for details.
+
+==============================================================================
+ vim:tw=78:ts=8:ft=help:norl:
