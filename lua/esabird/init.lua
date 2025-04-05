@@ -94,12 +94,15 @@ function M.send_to_esa()
     vim.notify(string.format("Command: %s", curl_command), vim.log.levels.DEBUG)
     vim.notify(string.format("Result: %s", result), vim.log.levels.DEBUG)
   else
-    -- Basic check for errors in the response body
-    if result:match('"error"') or result:match('"message"') or result:match('Not Found') then
-       vim.notify("Esabird: Failed to send. Check response:", vim.log.levels.ERROR)
+    -- Check if the response contains the post URL, indicating success
+    if not result:match('"url":') then
+       vim.notify("Esabird: Failed to send or unexpected response. Check response:", vim.log.levels.ERROR)
        vim.notify(result, vim.log.levels.ERROR)
     else
        vim.notify("Esabird: Successfully sent to esa.io!", vim.log.levels.INFO)
+       -- Extract and potentially show the URL (optional improvement)
+       -- local post_url = result:match('"url":"([^"]+)"')
+       -- if post_url then vim.notify("Post URL: " .. post_url, vim.log.levels.INFO) end
        -- vim.notify(result, vim.log.levels.DEBUG) -- Uncomment for debugging response
     end
   end
