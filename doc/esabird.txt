@@ -1,4 +1,4 @@
-*esabird.txt*	For Vim (8.0+) and Neovim (0.7+)	Last change: 2025 Apr 05
+*esabird.txt*	For Neovim (0.7+)	Last change: 2025 Apr 05
 
 ==============================================================================
 CONTENTS						*esabird-contents*
@@ -8,26 +8,23 @@ CONTENTS						*esabird-contents*
 3. Configuration				|esabird-configuration|
 4. Commands				|esabird-commands|
 5. Mappings				|esabird-mappings|
-6. Neovim (Lua) Notes			|esabird-lua-notes|
-7. License					|esabird-license|
+6. License					|esabird-license|
 
 ==============================================================================
 1. Introduction					*esabird-introduction*
 
-Esabird is a simple Vim/Neovim plugin to send selected text directly to your esa.io team as a new post (WIP).
-It includes implementations in both Vim script (for Vim/Neovim) and Lua (primarily for Neovim).
+Esabird is a simple Neovim plugin, written in Lua, to send selected text directly to your esa.io team as a new post (WIP).
 
 ==============================================================================
 2. Usage					*esabird-usage*
 
-1. Configure your esa.io API token and team name in your Vim/Neovim
-   configuration file (`vimrc` or `init.vim`/`init.lua`).
-   See |esabird-configuration|.
+1. Configure your esa.io API token and team name in your Neovim
+   configuration file (`init.lua`). See |esabird-configuration|.
 2. Select text in Visual mode (character-wise 'v' or line-wise 'V').
 3. Execute the command |:EsabirdSend| or use the default mapping
    |<Leader>e| (see |esabird-mappings|).
 
-Neovim users will automatically use the Lua implementation if available.
+This plugin is written in Lua and requires Neovim 0.7 or later.
 
 The selected text will be posted to your esa.io team as a new WIP post.
 The post title will be automatically generated with the current timestamp.
@@ -35,24 +32,24 @@ The post title will be automatically generated with the current timestamp.
 ==============================================================================
 3. Configuration				*esabird-configuration*
 
-Add the following lines to your configuration file (e.g., `~/.vimrc` for Vim, or `~/.config/nvim/init.vim` / `~/.config/nvim/init.lua` for Neovim):
+Add the following lines to your Neovim configuration file (`~/.config/nvim/init.lua`):
 
->vim
-  " Required: Your esa.io personal access token
-  " Generate one from: https://<your-team>.esa.io/user/tokens
-  let g:esabird_api_token = 'YOUR_ESA_API_TOKEN'
+>lua
+  -- Required: Your esa.io personal access token
+  -- Generate one from: https://<your-team>.esa.io/user/tokens
+  vim.g.esabird_api_token = 'YOUR_ESA_API_TOKEN'
 
-  " Required: Your esa.io team name
-  let g:esabird_team_name = 'YOUR_TEAM_NAME'
+  -- Required: Your esa.io team name
+  vim.g.esabird_team_name = 'YOUR_TEAM_NAME'
 
-  " Optional: Change the default mapping key (<Leader>e)
-  " let g:esabird_mapping_key = '<Leader>s' " Example: use <Leader>s
+  -- Optional: Change the default mapping key (<Leader>e)
+  -- vim.g.esabird_mapping_key = '<Leader>s' -- Example: use <Leader>s
 
-  " Optional: Disable default key mapping if you want to set it manually
-  " let g:esabird_no_default_key_mappings = 1
+  -- Optional: Disable default key mapping if you want to set it manually
+  -- vim.g.esabird_no_default_key_mappings = 1
 <
 
-Replace `'YOUR_ESA_API_TOKEN'` with your actual token and `'YOUR_TEAM_NAME'` with your team name. This configuration is shared between the Vim script and Lua versions.
+Replace `'YOUR_ESA_API_TOKEN'` with your actual token and `'YOUR_TEAM_NAME'` with your team name in your `init.lua`.
 
 ==============================================================================
 4. Commands					*esabird-commands*
@@ -67,19 +64,14 @@ Replace `'YOUR_ESA_API_TOKEN'` with your actual token and `'YOUR_TEAM_NAME'` wit
 By default, the plugin maps `<Leader>e` in Visual mode to send the selected text.
 Select text and press `<Leader>e`.
 
-You can change the mapping key by setting `g:esabird_mapping_key` in your |vimrc|. See |esabird-configuration|.
+You can change the mapping key by setting `g:esabird_mapping_key` in your `init.lua`. See |esabird-configuration|.
 
-You can disable the default mapping by setting `g:esabird_no_default_key_mappings` to 1 in your |vimrc|.
+You can disable the default mapping by setting `g:esabird_no_default_key_mappings` to 1 in your `init.lua`.
 
-==============================================================================
-6. Neovim (Lua) Notes				*esabird-lua-notes*
-
-If you are using Neovim (version 0.7 or later recommended), the Lua version of the plugin (`lua/esabird/init.lua` and `plugin/esabird.lua`) will likely be preferred and loaded automatically by Neovim's standard plugin loading mechanism if both Vim script and Lua versions are present.
-
-The Lua version uses Neovim's built-in `vim.notify()` for messages instead of `echom`/`echoerr`. Configuration (`g:esabird_...` variables), the command `:EsabirdSend`, and the default mapping `<Leader>e` remain the same.
+The plugin uses Neovim's built-in `vim.notify()` for messages.
 
 ==============================================================================
-7. License					*esabird-license*
+6. License					*esabird-license*
 
 MIT License. See the repository for details.
 
