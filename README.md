@@ -1,79 +1,58 @@
-# Esabird
+# esabird.nvim
 
-[![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+Neovim で選択したテキストを [esa.io](https://esa.io/) に送信するためのシンプルなプラグインです。
 
-A simple Neovim (0.7+) plugin, written in Lua, to send selected text directly to your [esa.io](https://esa.io/) team as a new post (WIP).
+リポジトリ: [hirokiyoshino/esabird.nvim](https://github.com/hirokiyoshino/esabird.nvim)
 
-## Features
+## 機能
 
-*   Send selected text (visual mode) to esa.io as a new WIP post.
-*   Written in Lua for Neovim.
-*   Configurable API token and team name.
-*   Default mapping `<Leader>e` in visual mode.
-*   User command `:EsabirdSend`.
+-   ビジュアルモードで選択したテキストを esa.io の新しい投稿として送信します。
+-   投稿は WIP (Work In Progress) として作成されます。
 
-## Requirements
+## インストール
 
-*   Neovim 0.7+
-*   `curl` command installed on your system.
-*   An esa.io account and a personal access token.
+お好みのプラグインマネージャーを使用してください。
 
-## Installation
+### lazy.nvim
 
-Use your favorite plugin manager.
-
-(Plugin managers like packer.nvim or lazy.nvim are recommended for Neovim)
-
-**packer.nvim**
 ```lua
-use 'your-github-username/esabird' -- Replace with actual path if hosted
+{
+  'hirokiyoshino/esabird.nvim',
+  config = function()
+    -- 設定 (下記参照)
+    vim.g.esabird_api_token = os.getenv("ESA_API_TOKEN") -- 環境変数から読み込む例
+    vim.g.esabird_team_name = "your-team-name"
+
+    -- キーマッピングの例 (Visual モード)
+    vim.keymap.set('v', '<leader>es', require('esabird').send_to_esa, { desc = 'Send selection to esa.io' })
+  end,
+}
 ```
 
-**lazy.nvim**
+## 設定
+
+以下のグローバル変数を Neovim の設定ファイル (`init.lua` など) で設定してください。
+
+-   `vim.g.esabird_api_token`: esa.io の API トークン。 [個人用アクセストークン](https://docs.esa.io/posts/102) を生成して設定します。セキュリティのため、環境変数などから読み込むことを推奨します。
+-   `vim.g.esabird_team_name`: あなたの esa.io チーム名 (例: `your-team-name.esa.io` の `your-team-name` の部分)。
+
 ```lua
-{ 'your-github-username/esabird' } -- Replace with actual path if hosted
+-- init.lua の例
+vim.g.esabird_api_token = "YOUR_ESA_API_TOKEN" -- または os.getenv("ESA_API_TOKEN")
+vim.g.esabird_team_name = "your-team-name"
 ```
 
-Or manually clone the repository into your Neovim package directory:
-*   Neovim: `~/.config/nvim/pack/vendor/start/esabird`
+## 使用方法
 
-## Configuration
+1.  Neovim でテキストをビジュアルモード (`v`, `V`) で選択します。
+2.  設定したキーマッピング（例: `<leader>es`）を押すか、コマンド `:lua require('esabird').send_to_esa()` を実行します。
+3.  成功すると、通知が表示され、作成された投稿の URL が表示されます。
 
-Add the following configuration to your Neovim setup (`init.lua`):
+## 注意事項
 
-**Neovim (`init.lua`)**
-```lua
--- Required: Your esa.io personal access token
--- Generate one from: https://<your-team>.esa.io/user/tokens
-vim.g.esabird_api_token = 'YOUR_ESA_API_TOKEN'
+-   ブロック選択 (`<C-v>`) は現在サポートされていません。
+-   エラーが発生した場合、Neovim の通知エリアにメッセージが表示されます。
 
--- Required: Your esa.io team name
-vim.g.esabird_team_name = 'YOUR_TEAM_NAME'
+## ライセンス
 
--- Optional: Change the default mapping key (<Leader>e)
--- vim.g.esabird_mapping_key = '<Leader>s' -- Example: use <Leader>s
-
--- Optional: Disable default key mapping if you want to set it manually
--- vim.g.esabird_no_default_key_mappings = 1
-```
-
-Replace `'YOUR_ESA_API_TOKEN'` with your actual token and `'YOUR_TEAM_NAME'` with your team name in your `init.lua`.
-
-## Usage
-
-1.  Select text in Visual mode (character-wise `v` or line-wise `V`).
-2.  Press `<Leader>e` (default mapping) or execute the command `:EsabirdSend`.
-3.  The selected text will be posted to your configured esa.io team as a new WIP post. The post title includes the current timestamp.
-
-Check Neovim messages (using `vim.notify`) for success or error notifications.
-
-## Documentation
-
-For more details, see the help file within Neovim:
-```vim
-:help esabird
-```
-
-## License
-
-MIT License. See the `LICENSE` file for details (if one exists in the repository).
+MIT

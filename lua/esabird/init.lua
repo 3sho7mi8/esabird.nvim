@@ -25,7 +25,6 @@ local function get_selected_text()
 
   if visual_mode == 'v' then -- Character-wise
     if #lines == 1 then
-      -- Adjust end_col for multibyte characters if necessary (simplified here)
       lines[1] = string.sub(lines[1], start_col, end_col)
     else
       lines[1] = string.sub(lines[1], start_col)
@@ -35,7 +34,6 @@ local function get_selected_text()
   elseif visual_mode == 'V' then -- Line-wise
     return table.concat(lines, "\n")
   elseif visual_mode == '\22' then -- Block-wise (Ctrl-V, represented as \22)
-    -- TODO: Handle block selection if needed
     vim.notify("Esabird: Block selection not fully supported yet.", vim.log.levels.WARN)
     return ""
   else
@@ -51,7 +49,6 @@ function M.send_to_esa()
     return
   end
 
-  -- Get configuration from global variables
   local api_token = vim.g.esabird_api_token
   local team_name = vim.g.esabird_team_name
 
@@ -66,44 +63,57 @@ function M.send_to_esa()
 
   local api_url = string.format('https://api.esa.io/v1/teams/%s/posts', team_name)
 
-  -- Prepare JSON payload
-  -- Basic escaping for JSON string values
-  local escaped_text = selected_text:gsub('\\', '\\\\'):gsub('"', '\\"'):gsub('\n', '\\n')
-
-  -- TODO: Make post title configurable
   local post_title = "New post from Neovim (" .. os.date('%Y-%m-%d %H:%M') .. ")"
-  local json_payload = string.format('{"post": {"name": "%s", "body_md": "%s", "wip": true}}', post_title, escaped_text)
+  local payload = {
+    post = {
+      name = post_title,
+      body_md = selected_text,
+      wip = true,
+    },
+  }
 
-  -- Build curl command
-  -- Use vim.fn.shellescape for proper argument escaping
-  local curl_command = string.format(
-    'curl -s -X POST %s -H "Authorization: Bearer %s" -H "Content-Type: application/json" -d %s',
+  local ok, json_payload = pcall(vim.json.encode, payload)
+  if not ok then
+    vim.notify("Esabird: Failed to encode JSON payload.", vim.log.levels.ERROR)
+    vim.notify(json_payload, vim.log.levels.ERROR)
+    return
+  end
+
+  -- Use a list of arguments for vim.fn.system for safer execution
+  local args = {
+    'curl',
+    '-s', -- Silent mode
+    '-X', 'POST',
     api_url,
-    api_token,
-    vim.fn.shellescape(json_payload)
-  )
+    '-H', string.format('Authorization: Bearer %s', api_token), -- Authorization header
+    '-H', 'Content-Type: application/json', -- Content-Type header
+    '-d', json_payload -- Request body data
+  }
 
-  -- Execute curl command using vim.fn.system
   vim.notify("Esabird: Sending to esa.io...", vim.log.levels.INFO)
-  local result = vim.fn.system(curl_command)
+  -- Execute the command using the argument list
+  local result = vim.fn.system(args)
   local exit_code = vim.v.shell_error
 
-  -- Check result
   if exit_code ~= 0 then
     vim.notify(string.format("Esabird: Failed to send. Curl error code: %d", exit_code), vim.log.levels.ERROR)
-    vim.notify(string.format("Command: %s", curl_command), vim.log.levels.DEBUG)
+    -- Avoid logging the full command with the token in production environments if possible
+    -- For debugging, you might temporarily log vim.inspect(args)
     vim.notify(string.format("Result: %s", result), vim.log.levels.DEBUG)
   else
-    -- Check if the response contains the post URL, indicating success
-    if not result:match('"url":') then
-       vim.notify("Esabird: Failed to send or unexpected response. Check response:", vim.log.levels.ERROR)
-       vim.notify(result, vim.log.levels.ERROR)
+    local ok_decode, response_data = pcall(vim.json.decode, result, { luanil = { object = true } })
+
+    if not ok_decode or type(response_data) ~= 'table' then
+      vim.notify("Esabird: Failed to decode JSON response or unexpected format.", vim.log.levels.ERROR)
+      vim.notify(result, vim.log.levels.ERROR)
+    elseif response_data.error then
+      vim.notify(string.format("Esabird: API Error - %s: %s", response_data.error, response_data.message or "Unknown error"), vim.log.levels.ERROR)
+    elseif response_data.url then
+      vim.notify("Esabird: Successfully sent to esa.io!", vim.log.levels.INFO)
+      vim.notify("Post URL: " .. response_data.url, vim.log.levels.INFO)
     else
-       vim.notify("Esabird: Successfully sent to esa.io!", vim.log.levels.INFO)
-       -- Extract and potentially show the URL (optional improvement)
-       -- local post_url = result:match('"url":"([^"]+)"')
-       -- if post_url then vim.notify("Post URL: " .. post_url, vim.log.levels.INFO) end
-       -- vim.notify(result, vim.log.levels.DEBUG) -- Uncomment for debugging response
+      vim.notify("Esabird: Sent, but could not confirm success from response.", vim.log.levels.WARN)
+      vim.notify(result, vim.log.levels.DEBUG)
     end
   end
 end
