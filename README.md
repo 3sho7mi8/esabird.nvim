@@ -19,9 +19,8 @@ Use your favorite plugin manager.
 {
   '3sho7mi8/esabird.nvim',
   config = function()
-    -- Configuration (see below)
-    vim.g.esabird_api_token = os.getenv("ESA_API_TOKEN") -- Example: Load from environment variable
-    vim.g.esabird_team_name = "your-team-name"
+    -- No specific plugin configuration needed here anymore.
+    -- API token and team name are read from environment variables.
 
     -- Example keymap (Visual mode)
     vim.keymap.set('v', '<leader>es', require('esabird').send_to_esa, { desc = 'Send selection to esa.io' })
@@ -31,16 +30,29 @@ Use your favorite plugin manager.
 
 ## Configuration
 
-Set the following global variables in your Neovim configuration file (e.g., `init.lua`).
+This plugin reads the necessary configuration directly from environment variables. You **do not** need to set any `vim.g` variables in your Neovim configuration (`init.lua` or `init.vim`) for this plugin.
 
-- `vim.g.esabird_api_token`: Your esa.io API token. Generate a [Personal Access Token](https://docs.esa.io/posts/102) and set it. For security, loading from an environment variable is recommended.
-- `vim.g.esabird_team_name`: Your esa.io team name (e.g., the `your-team-name` part of `your-team-name.esa.io`).
+Instead, you must configure the following environment variables in your shell's startup file (e.g., `~/.zshrc`, `~/.bashrc`, `~/.profile`, or `~/.config/fish/config.fish`):
 
-```lua
--- Example in init.lua
-vim.g.esabird_api_token = "YOUR_ESA_API_TOKEN" -- or os.getenv("ESA_API_TOKEN")
-vim.g.esabird_team_name = "your-team-name"
-```
+1.  **`ESA_API_TOKEN`**: Your personal access token for the esa.io API.
+    *   You can generate one from your esa.io settings: [Personal Access Tokens](https://docs.esa.io/posts/102).
+    *   Add the following line to your shell configuration file, replacing `"YOUR_ACTUAL_ESA_API_TOKEN"` with the token you generated:
+        ```sh
+        # Example for .zshrc or .bashrc
+        export ESA_API_TOKEN="YOUR_ACTUAL_ESA_API_TOKEN"
+        ```
+
+2.  **`ESABIRD_TEAM_NAME`**: Your esa.io team name.
+    *   This is the subdomain part of your esa.io URL (e.g., if your URL is `myteam.esa.io`, the team name is `myteam`).
+    *   Add the following line to your shell configuration file, replacing `"your-team-name"` with your actual team name:
+        ```sh
+        # Example for .zshrc or .bashrc
+        export ESABIRD_TEAM_NAME="your-team-name"
+        ```
+
+**Important:**
+*   After editing your shell configuration file, you must either **restart your terminal/shell session** or **source the configuration file** (e.g., run `source ~/.zshrc`) for the changes to take effect.
+*   Ensure that you launch Neovim from a shell session where these environment variables are correctly set and exported. You can verify this by running `echo $ESA_API_TOKEN` and `echo $ESABIRD_TEAM_NAME` in the terminal before starting Neovim.
 
 ## Usage
 

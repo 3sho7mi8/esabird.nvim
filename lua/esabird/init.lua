@@ -49,15 +49,15 @@ function M.send_to_esa()
     return
   end
 
-  local api_token = vim.g.esabird_api_token
-  local team_name = vim.g.esabird_team_name
+  local api_token = os.getenv("ESA_API_TOKEN")
+  local team_name = os.getenv("ESABIRD_TEAM_NAME")
 
   if not api_token or api_token == "" then
-    vim.notify("Esabird: API token (vim.g.esabird_api_token) is not set.", vim.log.levels.ERROR)
+    vim.notify("Esabird: Environment variable ESA_API_TOKEN is not set.", vim.log.levels.ERROR)
     return
   end
   if not team_name or team_name == "" then
-    vim.notify("Esabird: Team name (vim.g.esabird_team_name) is not set.", vim.log.levels.ERROR)
+    vim.notify("Esabird: Environment variable ESABIRD_TEAM_NAME is not set.", vim.log.levels.ERROR)
     return
   end
 
