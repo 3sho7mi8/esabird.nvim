@@ -36,4 +36,4 @@ end
 --   -- Process options
 -- end
 
-print("Esabird (Lua) loaded.") -- Optional: confirmation message
+-- print("Esabird (Lua) loaded.") -- Optional: confirmation message
