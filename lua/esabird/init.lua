@@ -63,11 +63,23 @@ function M.send_to_esa()
 
   local api_url = string.format('https://api.esa.io/v1/teams/%s/posts', team_name)
 
+  -- Extract title from H1 if present
   local post_title = "New post from Neovim (" .. os.date('%Y-%m-%d %H:%M') .. ")"
+  local body_lines = vim.split(selected_text, "\n", { plain = true })
+  if #body_lines > 0 and string.match(body_lines[1], "^#%s+(.+)") then
+    post_title = string.match(body_lines[1], "^#%s+(.+)")
+    table.remove(body_lines, 1) -- Remove H1 line from body
+    selected_text = table.concat(body_lines, "\n")
+  end
+
+  -- Prepend timestamp to the body
+  local timestamp = os.date('%Y-%m-%d %H:%M:%S')
+  local body_with_timestamp = timestamp .. "\n\n" .. selected_text
+
   local payload = {
     post = {
       name = post_title,
-      body_md = selected_text,
+      body_md = body_with_timestamp, -- Use modified body
       wip = true,
     },
   }
