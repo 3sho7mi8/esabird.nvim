@@ -65,16 +65,32 @@ function M.send_to_esa()
 
   -- Extract title from H1 if present
   local post_title = "New post from Neovim (" .. os.date('%Y-%m-%d %H:%M') .. ")"
+  local link_url = nil -- Variable to store the URL if H1 is a link
   local body_lines = vim.split(selected_text, "\n", { plain = true })
-  if #body_lines > 0 and string.match(body_lines[1], "^#%s+(.+)") then
-    post_title = string.match(body_lines[1], "^#%s+(.+)")
-    table.remove(body_lines, 1) -- Remove H1 line from body
-    selected_text = table.concat(body_lines, "\n")
+
+  if #body_lines > 0 then
+    local h1_content = string.match(body_lines[1], "^#%s+(.+)")
+    if h1_content then
+      -- Check if the content is a markdown link like [text](url)
+      local link_text, captured_url = string.match(h1_content, "^%[([^%]]+)%]%(([^%)]+)%)")
+      if link_text and captured_url then
+        post_title = link_text -- Use only the text part of the link
+        link_url = captured_url -- Store the URL
+      else
+        post_title = h1_content -- Use the whole content if it's not a link
+      end
+      table.remove(body_lines, 1) -- Remove H1 line from body
+      selected_text = table.concat(body_lines, "\n")
+    end
   end
 
-  -- Prepend timestamp to the body
+  -- Prepend timestamp and potentially the link URL to the body
   local timestamp = os.date('%Y-%m-%d %H:%M:%S')
-  local body_with_timestamp = timestamp .. "\n\n" .. selected_text
+  local body_prefix = timestamp .. "\n\n"
+  if link_url then
+    body_prefix = body_prefix .. link_url .. "\n\n" -- Add URL below timestamp
+  end
+  local body_with_timestamp = body_prefix .. selected_text
 
   local payload = {
     post = {
